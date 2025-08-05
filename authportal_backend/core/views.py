@@ -109,7 +109,13 @@ class EBookletUploadView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-@login_required
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def UserEBookletView(request):
     user = request.user
     selections = UserEBookletSelection.objects.filter(user=user, approved=True).select_related('user').prefetch_related('ebooklet')
