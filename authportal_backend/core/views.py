@@ -243,3 +243,4 @@ def ebooklet_page_images_view(request, ebooklet_id):
     except Exception as e:
         logger.error(f"Error serving ebooklet page images: {e}", exc_info=True)
         return JsonResponse({'error': 'Internal server error while fetching page images.'}, status=500)
+
