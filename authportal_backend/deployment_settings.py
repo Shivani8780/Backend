@@ -57,3 +57,4 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # URL configurations
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
