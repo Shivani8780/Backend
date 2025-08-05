@@ -147,7 +147,7 @@ CORS_ALLOW_CREDENTIALS = True
 PUBLIC_BASE_URL = ' https://c56dad433c2e.ngrok-free.app'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR.parent / 'authportal'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 

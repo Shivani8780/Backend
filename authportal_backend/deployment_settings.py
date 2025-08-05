@@ -48,3 +48,12 @@ DATABASES = {
         conn_max_age=600
     )
 }
+
+# Media and Static files configuration for deployment
+# For static PDF booklets that don't change often
+MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# URL configurations
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
