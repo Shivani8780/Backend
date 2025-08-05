@@ -23,12 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xhkc$y)ssbs6b!3t*!%y*)#*r-&6(a%z&gv54j^xh%5jzwmg#o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+import os
 
-ALLOWED_HOSTS = [ '192.168.1.49', 'localhost', '127.0.0.1' ]
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-
-# Application definition
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1').split()
 
 INSTALLED_APPS = [
     'grappelli',
@@ -87,11 +86,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'authportal_backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-import os
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -103,9 +97,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -122,10 +113,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -134,35 +121,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:4028",
-    "http://127.0.0.1:4028",
-]
+CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', 'http://localhost:3000 http://127.0.0.1:3000 http://localhost:5173 http://127.0.0.1:5173 http://localhost:4028 http://127.0.0.1:4028').split()
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:4028",
-    "http://127.0.0.1:4028",
-]
+CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS', 'http://localhost:3000 http://127.0.0.1:3000 http://localhost:5173 http://127.0.0.1:5173 http://localhost:4028 http://127.0.0.1:4028').split()
 
 CORS_ALLOW_CREDENTIALS = True
-
-
 
 PUBLIC_BASE_URL = ' https://c56dad433c2e.ngrok-free.app'
 

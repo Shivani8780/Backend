@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import EBooklet, UserEBookletSelection
+from .views_custom import log_request, log_error
 
 import json
 
@@ -14,6 +15,7 @@ User = get_user_model()
 @method_decorator(csrf_exempt, name='dispatch')
 class UserRegistrationView(View):
     def post(self, request):
+        log_request(request)
         try:
             data = json.loads(request.body)
             username = data.get('username')
@@ -47,6 +49,7 @@ class UserRegistrationView(View):
 
             return JsonResponse({'message': 'User registered successfully.'})
         except Exception as e:
+            log_error(e)
             return JsonResponse({'error': str(e)}, status=500)
 
 from rest_framework.authtoken.models import Token
@@ -54,6 +57,7 @@ from rest_framework.authtoken.models import Token
 @method_decorator(csrf_exempt, name='dispatch')
 class UserLoginView(View):
     def post(self, request):
+        log_request(request)
         try:
             data = json.loads(request.body)
             username = data.get('username')
@@ -66,6 +70,7 @@ class UserLoginView(View):
             else:
                 return JsonResponse({'error': 'Invalid credentials.'}, status=401)
         except Exception as e:
+            log_error(e)
             return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
