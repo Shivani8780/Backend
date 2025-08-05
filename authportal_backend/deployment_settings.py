@@ -30,6 +30,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4028",
     "http://127.0.0.1:4028",
     # Add your deployed frontend URLs here as needed
+    
 ]
 
 CSRF_TRUSTED_ORIGINS = [
