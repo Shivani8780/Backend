@@ -148,6 +148,9 @@ logger = logging.getLogger(__name__)
 
 import os
 
+import mimetypes
+from django.http import Http404
+
 @login_required
 def ebooklet_pdf_view(request, ebooklet_id):
     user = request.user
@@ -183,7 +186,12 @@ def ebooklet_pdf_view(request, ebooklet_id):
                 if not os.path.exists(file_path):
                     logger.error(f"PDF file does not exist at path: {file_path}")
                     return JsonResponse({'error': 'PDF file not found on server.'}, status=404)
-                response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+                # Additional debug info
+                logger.debug(f"File size: {os.path.getsize(file_path)} bytes")
+                content_type, encoding = mimetypes.guess_type(file_path)
+                if not content_type:
+                    content_type = 'application/octet-stream'
+                response = FileResponse(open(file_path, 'rb'), content_type=content_type)
                 response['Content-Disposition'] = f'inline; filename="{ebooklet.name}.pdf"'
                 return response
             except Exception as e:
