@@ -252,3 +252,53 @@ def ebooklet_page_images_view(request, ebooklet_id):
         logger.error(f"Error serving ebooklet page images: {e}", exc_info=True)
         return JsonResponse({'error': 'Internal server error while fetching page images.'}, status=500)
 
+@login_required
+@require_GET
+def ebooklet_static_pdf_view(request, ebooklet_id):
+    """
+    Serve static PDF files with authentication and access control
+    """
+    user = request.user
+    try:
+        ebooklet = get_object_or_404(EBooklet, pk=ebooklet_id)
+
+        # Check if user has approved selection for this ebooklet
+        selections = UserEBookletSelection.objects.filter(user=user, ebooklet=ebooklet, approved=True)
+        if not selections.exists():
+            logger.error(f"User {user} does not have access to ebooklet {ebooklet_id}")
+            return HttpResponseForbidden("You do not have access to this ebooklet.")
+
+        # Check view_option for the selection
+        selection = selections.first()
+        if selection.view_option == 'none':
+            logger.error(f"User {user} has no view access to ebooklet {ebooklet_id}")
+            return HttpResponseForbidden("You do not have access to view this ebooklet.")
+        elif selection.view_option == 'preview':
+            # TODO: Implement preview logic, e.g., serve a preview PDF or partial content
+            logger.error(f"Preview access not implemented for ebooklet {ebooklet_id}")
+            return HttpResponseForbidden("Preview access not implemented yet.")
+        elif selection.view_option == 'full':
+            # Serve the static PDF file
+            static_filename = ebooklet.static_pdf_filename
+            if not static_filename:
+                # Fallback: try to determine filename from ebooklet name or use dynamic serving
+                logger.warning(f"No static filename set for ebooklet {ebooklet_id}, falling back to dynamic serving")
+                return ebooklet_pdf_view(request, ebooklet_id)
+            
+            # Construct static PDF URL
+            static_pdf_url = request.build_absolute_uri(f"{settings.STATIC_URL}pdfs/{static_filename}")
+            logger.info(f"Serving static PDF for ebooklet {ebooklet_id}: {static_pdf_url}")
+            
+            # Return the static PDF URL as JSON response for frontend to handle
+            return JsonResponse({
+                'pdf_url': static_pdf_url,
+                'filename': static_filename,
+                'ebooklet_name': ebooklet.name
+            })
+        else:
+            logger.error(f"Invalid access level {selection.view_option} for ebooklet {ebooklet_id}")
+            return HttpResponseForbidden("Invalid access level.")
+    except Exception as e:
+        logger.error(f"Error serving static ebooklet PDF: {e}", exc_info=True)
+        return JsonResponse({'error': 'Internal server error while fetching PDF.'}, status=500)
+

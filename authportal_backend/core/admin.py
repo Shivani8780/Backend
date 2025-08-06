@@ -103,7 +103,9 @@ from .utils import generate_pdf_page_images
 
 @admin.register(EBooklet)
 class EBookletAdmin(admin.ModelAdmin):
-    list_display = ['name', 'pdf_file']
+    list_display = ['name', 'pdf_file', 'static_pdf_filename']
+    search_fields = ['name', 'static_pdf_filename']
+    fields = ['name', 'pdf_file', 'static_pdf_filename']
     actions = ['generate_page_images']
 
     def generate_page_images(self, request, queryset):

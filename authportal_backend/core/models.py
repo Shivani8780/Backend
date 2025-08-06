@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
 class EBooklet(models.Model):
     name = models.CharField(max_length=255)
     pdf_file = models.FileField(upload_to='ebooks/')
+    static_pdf_filename = models.CharField(max_length=255, blank=True, null=True, help_text="Filename of the static PDF file (e.g., 'B1_Boys.pdf')")
 
     def __str__(self):
         return self.name
