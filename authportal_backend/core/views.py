@@ -278,11 +278,24 @@ def ebooklet_static_pdf_view(request, ebooklet_id):
             logger.error(f"Preview access not implemented for ebooklet {ebooklet_id}")
             return HttpResponseForbidden("Preview access not implemented yet.")
         elif selection.view_option == 'full':
+            # Check if static_pdf_filename field exists (migration might not be run yet)
+            static_filename = None
+            try:
+                static_filename = getattr(ebooklet, 'static_pdf_filename', None)
+            except AttributeError:
+                logger.warning(f"static_pdf_filename field not found for ebooklet {ebooklet_id}, falling back to dynamic serving")
+                return ebooklet_pdf_view(request, ebooklet_id)
+            
             # Serve the static PDF file
-            static_filename = ebooklet.static_pdf_filename
             if not static_filename:
                 # Fallback: try to determine filename from ebooklet name or use dynamic serving
                 logger.warning(f"No static filename set for ebooklet {ebooklet_id}, falling back to dynamic serving")
+                return ebooklet_pdf_view(request, ebooklet_id)
+            
+            # Check if static PDF file exists
+            static_pdf_path = os.path.join(settings.BASE_DIR, 'static', 'pdfs', static_filename)
+            if not os.path.exists(static_pdf_path):
+                logger.warning(f"Static PDF file not found: {static_pdf_path}, falling back to dynamic serving")
                 return ebooklet_pdf_view(request, ebooklet_id)
             
             # Construct static PDF URL
@@ -300,5 +313,7 @@ def ebooklet_static_pdf_view(request, ebooklet_id):
             return HttpResponseForbidden("Invalid access level.")
     except Exception as e:
         logger.error(f"Error serving static ebooklet PDF: {e}", exc_info=True)
-        return JsonResponse({'error': 'Internal server error while fetching PDF.'}, status=500)
+        # Fallback to dynamic serving on any error
+        logger.info(f"Falling back to dynamic serving for ebooklet {ebooklet_id}")
+        return ebooklet_pdf_view(request, ebooklet_id)
 
