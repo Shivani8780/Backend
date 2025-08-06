@@ -9,16 +9,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Define the mapping of ebooklet names to static PDF filenames
         pdf_mapping = {
-            'B1 Boys': 'B1 Boys.pdf',
-            'B1_Boys': 'B1 Boys.pdf',
+            'B1 Boys': 'B1_Boys.pdf',
+            'B1_Boys': 'B1_Boys.pdf',
             'B2 Boys': 'B2 Boys.pdf',
             'B2_Boys': 'B2 Boys.pdf',
             'B3 Boys': 'B3 Boys.pdf',
             'B3_Boys': 'B3 Boys.pdf',
             'Divorce Boys': 'Divorce Boys.pdf',
             'Divorce_Boys': 'Divorce Boys.pdf',
-            'Divorce Girls': 'Divorce Girls.pdf',
-            'Divorce_Girls': 'Divorce Girls.pdf',
+            'Divorce Girls': 'Divorce_Girls.pdf',
+            'Divorce_Girls': 'Divorce_Girls.pdf',
             'Gujarat Girls': 'Gujarat Girls.pdf',
             'Gujarat_Girls': 'Gujarat Girls.pdf',
             'MMR Boys': 'MMR Boys.pdf',
