@@ -31,8 +31,8 @@ class Command(BaseCommand):
             'NRI_Girls': 'NRI Girls.pdf',
             'Saurashtra Girls': 'Saurashtra Girls.pdf',
             'Saurashtra_Girls': 'Saurashtra Girls.pdf',
-            'Saurashtra Boys': 'Saurashtra Boys.pdf',
-            'Saurashtra_Boys': 'Saurashtra Boys.pdf',
+            'Saurashtra Boys': 'Saurasthra Boys.pdf',
+            'Saurashtra_Boys': 'Saurasthra Boys.pdf',
         }
         
         # Get all ebooklets

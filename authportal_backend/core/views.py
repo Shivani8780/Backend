@@ -281,9 +281,14 @@ def ebooklet_static_pdf_view(request, ebooklet_id):
             # Check if static_pdf_filename field exists (migration might not be run yet)
             static_filename = None
             try:
-                static_filename = getattr(ebooklet, 'static_pdf_filename', None)
-            except AttributeError:
-                logger.warning(f"static_pdf_filename field not found for ebooklet {ebooklet_id}, falling back to dynamic serving")
+                # Check if the field exists in the model
+                if hasattr(ebooklet, 'static_pdf_filename'):
+                    static_filename = ebooklet.static_pdf_filename
+                else:
+                    logger.warning(f"static_pdf_filename field not found in model, falling back to dynamic serving")
+                    return ebooklet_pdf_view(request, ebooklet_id)
+            except Exception as field_error:
+                logger.warning(f"Error accessing static_pdf_filename field: {field_error}, falling back to dynamic serving")
                 return ebooklet_pdf_view(request, ebooklet_id)
             
             # Serve the static PDF file
@@ -293,21 +298,29 @@ def ebooklet_static_pdf_view(request, ebooklet_id):
                 return ebooklet_pdf_view(request, ebooklet_id)
             
             # Check if static PDF file exists
-            static_pdf_path = os.path.join(settings.BASE_DIR, 'static', 'pdfs', static_filename)
-            if not os.path.exists(static_pdf_path):
-                logger.warning(f"Static PDF file not found: {static_pdf_path}, falling back to dynamic serving")
+            try:
+                static_pdf_path = os.path.join(settings.BASE_DIR, 'static', 'pdfs', static_filename)
+                if not os.path.exists(static_pdf_path):
+                    logger.warning(f"Static PDF file not found: {static_pdf_path}, falling back to dynamic serving")
+                    return ebooklet_pdf_view(request, ebooklet_id)
+            except Exception as path_error:
+                logger.warning(f"Error checking static PDF path: {path_error}, falling back to dynamic serving")
                 return ebooklet_pdf_view(request, ebooklet_id)
             
             # Construct static PDF URL
-            static_pdf_url = request.build_absolute_uri(f"{settings.STATIC_URL}pdfs/{static_filename}")
-            logger.info(f"Serving static PDF for ebooklet {ebooklet_id}: {static_pdf_url}")
-            
-            # Return the static PDF URL as JSON response for frontend to handle
-            return JsonResponse({
-                'pdf_url': static_pdf_url,
-                'filename': static_filename,
-                'ebooklet_name': ebooklet.name
-            })
+            try:
+                static_pdf_url = request.build_absolute_uri(f"{settings.STATIC_URL}pdfs/{static_filename}")
+                logger.info(f"Serving static PDF for ebooklet {ebooklet_id}: {static_pdf_url}")
+                
+                # Return the static PDF URL as JSON response for frontend to handle
+                return JsonResponse({
+                    'pdf_url': static_pdf_url,
+                    'filename': static_filename,
+                    'ebooklet_name': ebooklet.name
+                })
+            except Exception as url_error:
+                logger.warning(f"Error constructing static PDF URL: {url_error}, falling back to dynamic serving")
+                return ebooklet_pdf_view(request, ebooklet_id)
         else:
             logger.error(f"Invalid access level {selection.view_option} for ebooklet {ebooklet_id}")
             return HttpResponseForbidden("Invalid access level.")
@@ -315,5 +328,9 @@ def ebooklet_static_pdf_view(request, ebooklet_id):
         logger.error(f"Error serving static ebooklet PDF: {e}", exc_info=True)
         # Fallback to dynamic serving on any error
         logger.info(f"Falling back to dynamic serving for ebooklet {ebooklet_id}")
-        return ebooklet_pdf_view(request, ebooklet_id)
+        try:
+            return ebooklet_pdf_view(request, ebooklet_id)
+        except Exception as fallback_error:
+            logger.error(f"Fallback to dynamic serving also failed: {fallback_error}")
+            return JsonResponse({'error': 'PDF serving temporarily unavailable'}, status=500)
 

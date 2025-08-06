@@ -24,13 +24,14 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     # Add your deployed frontend URLs here as needed
-    "https://auth-ebooklet-frontend.onrender.com"
-
+    "https://auth-ebooklet-frontend.onrender.com",
+    "https://auth-ebooklet-backend.onrender.com"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     # Add your deployed frontend URLs here as needed
-    "https://auth-ebooklet-frontend.onrender.com"
+    "https://auth-ebooklet-frontend.onrender.com",
+    "https://auth-ebooklet-backend.onrender.com"
 ]
 
 STORAGES = {
@@ -63,3 +64,6 @@ STATICFILES_DIRS = [
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+# WhiteNoise configuration for better static file serving
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
