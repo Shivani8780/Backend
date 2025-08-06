@@ -11,9 +11,9 @@ from .views import (
     ebooklet_page_images_view,
     ebooklets_list_view,
     debug_static_pdf_view,
-    ebooklet_dynamic_pdf_view,
     ebooklet_static_pdf_direct_view,
 )
+from .views_dynamic_pdf import ebooklet_dynamic_pdf_view
 
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='user-register'),
