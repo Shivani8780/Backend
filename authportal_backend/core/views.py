@@ -334,3 +334,42 @@ def ebooklet_static_pdf_view(request, ebooklet_id):
             logger.error(f"Fallback to dynamic serving also failed: {fallback_error}")
             return JsonResponse({'error': 'PDF serving temporarily unavailable'}, status=500)
 
+@login_required
+@require_GET
+def debug_static_pdf_view(request, ebooklet_id):
+    """
+    Debug endpoint to test static PDF serving without authentication checks
+    """
+    try:
+        ebooklet = get_object_or_404(EBooklet, pk=ebooklet_id)
+        
+        debug_info = {
+            'ebooklet_id': ebooklet_id,
+            'ebooklet_name': ebooklet.name,
+            'has_static_field': hasattr(ebooklet, 'static_pdf_filename'),
+            'static_filename': getattr(ebooklet, 'static_pdf_filename', None),
+            'base_dir': str(settings.BASE_DIR),
+            'static_root': str(settings.STATIC_ROOT),
+            'static_url': settings.STATIC_URL,
+        }
+        
+        # Check if static PDF file exists
+        static_filename = getattr(ebooklet, 'static_pdf_filename', None)
+        if static_filename:
+            static_pdf_path = os.path.join(settings.BASE_DIR, 'static', 'pdfs', static_filename)
+            collected_pdf_path = os.path.join(settings.STATIC_ROOT, 'pdfs', static_filename)
+            
+            debug_info.update({
+                'source_path': static_pdf_path,
+                'source_exists': os.path.exists(static_pdf_path),
+                'collected_path': collected_pdf_path,
+                'collected_exists': os.path.exists(collected_pdf_path),
+                'static_url_full': request.build_absolute_uri(f"{settings.STATIC_URL}pdfs/{static_filename}")
+            })
+        
+        return JsonResponse({'debug': debug_info})
+        
+    except Exception as e:
+        logger.error(f"Debug endpoint error: {e}", exc_info=True)
+        return JsonResponse({'error': str(e), 'debug': {'ebooklet_id': ebooklet_id}}, status=500)
+

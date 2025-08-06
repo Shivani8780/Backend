@@ -10,6 +10,7 @@ from .views import (
     ebooklet_static_pdf_view,
     ebooklet_page_images_view,
     ebooklets_list_view,
+    debug_static_pdf_view,
 )
 
 urlpatterns = [
@@ -21,6 +22,7 @@ urlpatterns = [
     path('staff/ebooklet-selection/<int:pk>/', UserEBookletSelectionUpdateView.as_view(), name='ebooklet-selection-update'),
     path('ebooklet/<int:ebooklet_id>/pdf/', ebooklet_static_pdf_view, name='ebooklet-pdf-view'),
     path('ebooklet/<int:ebooklet_id>/pdf-dynamic/', ebooklet_pdf_view, name='ebooklet-pdf-dynamic'),
+    path('ebooklet/<int:ebooklet_id>/pdf-debug/', debug_static_pdf_view, name='ebooklet-pdf-debug'),
     path('ebooklet/<int:ebooklet_id>/page-images/', ebooklet_page_images_view, name='ebooklet-page-images'),
     path('ebooklet/<int:ebooklet_id>/pdf-file/', ebooklet_pdf_view, name='ebooklet-pdf-file'),
     path('ebooklets/', ebooklets_list_view, name='ebooklets-list'),
