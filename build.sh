@@ -29,6 +29,4 @@ python fix_missing_pdfs.py
 
 echo "✅ Build completed successfully!"
 
-# if [[ $CREATE_SUPERUSER ]]; then
-#     python manage.py createsuperuser --no-input
-# fi
+
