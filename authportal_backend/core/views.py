@@ -7,6 +7,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import EBooklet, UserEBookletSelection
 from .views_custom import log_request, log_error
+from django.conf import settings
+from django.http import FileResponse, Http404, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+import os
 
 import json
 
@@ -373,3 +378,34 @@ def debug_static_pdf_view(request, ebooklet_id):
         logger.error(f"Debug endpoint error: {e}", exc_info=True)
         return JsonResponse({'error': str(e), 'debug': {'ebooklet_id': ebooklet_id}}, status=500)
 
+@login_required
+def ebooklet_static_pdf_direct_view(request, ebooklet_id):
+    """
+    Serve the static PDF file directly, but only after authentication and access control.
+    """
+    user = request.user
+    ebooklet = get_object_or_404(EBooklet, pk=ebooklet_id)
+
+    # Check if user has approved selection for this ebooklet
+    selections = UserEBookletSelection.objects.filter(user=user, ebooklet=ebooklet, approved=True)
+    if not selections.exists():
+        return HttpResponseForbidden("You do not have access to this ebooklet.")
+
+    # Check view_option for the selection
+    selection = selections.first()
+    if selection.view_option != 'full':
+        return HttpResponseForbidden("You do not have full access to view this ebooklet.")
+
+    static_filename = getattr(ebooklet, 'static_pdf_filename', None)
+    if not static_filename:
+        raise Http404("Static PDF filename not set for this ebooklet.")
+    
+    static_pdf_path = os.path.join(settings.BASE_DIR, 'static', 'pdfs', static_filename)
+    if not os.path.exists(static_pdf_path):
+        static_pdf_path = os.path.join(settings.STATIC_ROOT, 'pdfs', static_filename)
+        if not os.path.exists(static_pdf_path):
+            raise Http404("Static PDF file not found.")
+    
+    response = FileResponse(open(static_pdf_path, 'rb'), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{ebooklet.name}.pdf"'
+    return response
