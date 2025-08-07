@@ -36,3 +36,4 @@ if [ "$CREATE_SUPERUSER" = "True" ]; then
 else
     echo "👤 Skipping superuser creation."
 fi
+echo "🚀 Deployment build complete!"
