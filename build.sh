@@ -30,3 +30,9 @@ python fix_missing_pdfs.py
 echo "✅ Build completed successfully!"
 
 
+if [$CREAT_SUPERUSER]; then
+    echo "👤 Creating superuser..."
+    python manage.py createsuperuser --noinput || true
+else
+    echo "👤 Skipping superuser creation."
+fi
