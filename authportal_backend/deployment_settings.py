@@ -25,13 +25,13 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     # Add your deployed frontend URLs here as needed
     "https://auth-ebooklet-frontend.onrender.com",
-    "https://auth-ebooklet-backend.onrender.com"
+    "https://backend-un6n.onrender.com"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     # Add your deployed frontend URLs here as needed
     "https://auth-ebooklet-frontend.onrender.com",
-    "https://auth-ebooklet-backend.onrender.com"
+    "https://backend-un6n.onrender.com"
 ]
 
 STORAGES = {
