@@ -126,13 +126,15 @@ def UserEBookletView(request):
     selections = UserEBookletSelection.objects.filter(user=user, approved=True).select_related('user').prefetch_related('ebooklet')
     ebooklets_data = []
     for selection in selections:
-        for ebooklet in selection.ebooklet.all():
-            ebooklets_data.append({
-                'id': ebooklet.id,
-                'name': ebooklet.name,
-                'view_option': selection.view_option,
-                'approved': selection.approved,
-            })
+        ebooklet = selection.ebooklet
+        ebooklets_data.append({
+            'id': ebooklet.id,
+            'name': ebooklet.name,
+            'view_option': selection.view_option,
+            'approved': selection.approved,
+            'static_pdf_filename': getattr(ebooklet, 'static_pdf_filename', None),
+            'pdf_filename': ebooklet.pdf_file.name if getattr(ebooklet, 'pdf_file', None) else None,
+        })
     return JsonResponse({'ebooklets': ebooklets_data})
 
 def ebooklets_list_view(request):
