@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import EBooklet, UserEBookletSelection
-from .views_custom import log_request, log_error
 from django.conf import settings
 from django.http import FileResponse, Http404, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -20,7 +19,6 @@ User = get_user_model()
 @method_decorator(csrf_exempt, name='dispatch')
 class UserRegistrationView(View):
     def post(self, request):
-        log_request(request)
         try:
             data = json.loads(request.body)
             username = data.get('username')
@@ -54,7 +52,6 @@ class UserRegistrationView(View):
 
             return JsonResponse({'message': 'User registered successfully.'})
         except Exception as e:
-            log_error(e)
             return JsonResponse({'error': str(e)}, status=500)
 
 from rest_framework.authtoken.models import Token
@@ -62,7 +59,6 @@ from rest_framework.authtoken.models import Token
 @method_decorator(csrf_exempt, name='dispatch')
 class UserLoginView(View):
     def post(self, request):
-        log_request(request)
         try:
             data = json.loads(request.body)
             username = data.get('username')
@@ -75,7 +71,6 @@ class UserLoginView(View):
             else:
                 return JsonResponse({'error': 'Invalid credentials.'}, status=401)
         except Exception as e:
-            log_error(e)
             return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
@@ -123,7 +118,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 @permission_classes([IsAuthenticated])
 def UserEBookletView(request):
     user = request.user
-    selections = UserEBookletSelection.objects.filter(user=user, approved=True).select_related('user').prefetch_related('ebooklet')
+    selections = UserEBookletSelection.objects.filter(user=user, approved=True).select_related('user', 'ebooklet')
     ebooklets_data = []
     for selection in selections:
         ebooklet = selection.ebooklet
