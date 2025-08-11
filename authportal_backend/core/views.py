@@ -122,6 +122,8 @@ def UserEBookletView(request):
     ebooklets_data = []
     for selection in selections:
         ebooklet = selection.ebooklet
+        if not ebooklet:
+            continue  # Skip if ebooklet is missing
         ebooklets_data.append({
             'id': ebooklet.id,
             'name': ebooklet.name,
